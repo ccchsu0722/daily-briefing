@@ -1,0 +1,30 @@
+name: daily-briefing
+
+on:
+  schedule:
+    # 北京时间每天 08:07（避开整点高峰，延迟更小）
+    # GitHub 现支持 IANA 时区写法，无需手动换算 UTC
+    - cron: '7 8 * * *'
+      timezone: 'Asia/Shanghai'
+  # 支持在网页上手动点击运行，方便随时测试
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate and send briefing
+        env:
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+        run: python briefing.py
